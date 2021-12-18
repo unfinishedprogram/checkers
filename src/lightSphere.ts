@@ -8,7 +8,6 @@ export function createLightSphere (
 	resolution:number, 
 ): DirectionalLight[] {
 	let lights:DirectionalLight[] = [];
-	
 	for(let i = 0;  i < n; i++) {
 		let l = new DirectionalLight();
 		l.intensity = intensity/n;
