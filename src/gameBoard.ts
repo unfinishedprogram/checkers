@@ -21,13 +21,13 @@ export default class GameBoard {
 	set(pos:Vector2, piece: Tile) {
 		this.tiles[this.width * pos.y + pos.x] = piece;
 		if(piece) {
-			piece.position.copy(this.geometry.getTile(pos.x, pos.y).position);
+			piece.position.copy(this.geometry.getTile(pos).position);
 		}
 	}
 
 	move(from:Vector2, to:Vector2) {
 		let p = this.get(from);
-		let goal = this.geometry.getTile(to.x, to.y);
+		let goal = this.geometry.getTile(to);
 
 		if(p){
 			animateVector(p.position, goal.position, 250);
@@ -37,7 +37,7 @@ export default class GameBoard {
 	}
 
 	setPreview(pos:Vector2, mesh:Mesh) {
-		mesh.position.copy(this.geometry.getTile(pos.x, pos.y).position);
+		mesh.position.copy(this.geometry.getTile(pos).position);
 		mesh.rotateX(Math.PI/2)
 		this.geometry.add(mesh);
 		mesh.castShadow=false;
@@ -74,7 +74,7 @@ export default class GameBoard {
 
 			if(valid){
 				this.move(this.selected, pos)
-				this.geometry.getTile(this.selected.x, this.selected.y).endSelect();
+				this.geometry.select(undefined);
 				this.selected = undefined;
 				this.clearPreview();
 				return;
@@ -82,11 +82,11 @@ export default class GameBoard {
 		}
 
 		if(this.selected && this.get(pos)){
-			this.geometry.getTile(this.selected.x, this.selected.y).endSelect();
+			this.geometry.select(undefined);
 			this.clearPreview();
 
 			if(this.selected.x == pos.x && this.selected.y == pos.y){
-				this.geometry.getTile(this.selected.x, this.selected.y).endSelect();
+				this.geometry.select(undefined);
 				this.clearPreview();
 				this.selected = undefined;
 				return;
@@ -95,26 +95,16 @@ export default class GameBoard {
 
 		if (this.get(pos)){
 			this.selected = pos;
-			this.geometry.getTile(pos.x, pos.y).startSelect();
+			this.geometry.select(pos);
 			this.clearPreview();
 			this.showPreviews(this.getValidMoves(pos));
 		}
 	}
 
 	hover(pos:Vector2) {
-		if (!this.hovering){
-			this.hovering = pos;
-			this.geometry.getTile(pos.x, pos.y).startHover();
-			return;
-		} 
-
-		if(pos.x != this.hovering.x || pos.y != this.hovering.y){
-			let tile = this.geometry.getTile(this.hovering.x, this.hovering.y);
-			tile.endHover();
-		}
-
+		this.geometry.hover(pos);
 		this.hovering = pos;
-		this.geometry.getTile(pos.x, pos.y).startHover();
+		return;
 	}
 
 	release(pos:Vector2) {
@@ -148,7 +138,6 @@ export default class GameBoard {
 	}
 
 	getPieces():Group {
-		console.log(this.pieces.children.length);
 		return this.pieces;
 	}
 

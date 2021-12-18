@@ -19,8 +19,6 @@ export class MeshHandler {
 	}
 
 	public static async loadMesh (path: string, name: string):Promise<Mesh> {
-		console.log(path);
-
 		if(!!MeshHandler.cache[name]) {
 			return MeshHandler.cache[name];
 		}

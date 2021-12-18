@@ -10,7 +10,6 @@ export default function animateVector(vec:Vector3, goal:Vector3, t:number){
 		let delta = performance.now()-lastFrame;
 		elapsed += delta;
 		lastFrame = performance.now();
-		console.log(elapsed);
 		vec.add(diff.clone().multiplyScalar(delta/t));
 		if(elapsed >= t){
 			vec.copy(goal);

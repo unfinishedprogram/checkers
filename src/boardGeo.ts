@@ -4,41 +4,20 @@ const mats:MeshStandardMaterial[] = [
 	new MeshPhysicalMaterial({color:"white"}),
 	new MeshPhysicalMaterial({color:"black"})
 ];
-
-function genMat(i : number) {
-	return i ? new MeshPhysicalMaterial({color:"white"}) : new MeshPhysicalMaterial({color:"black"});
+const materials = {
+	hover: new MeshPhysicalMaterial({emissive:new Color("#FFF")}),
+	select: new MeshPhysicalMaterial({emissive:new Color("#FF0")})
 }
 
+
 class TileGeo extends Mesh {
-	private hovering:boolean = false;
-	private selected:boolean = false;
 	private pos:Vector2;
+
 	constructor(private x:number, private y:number) {
-		super(new PlaneBufferGeometry(1, 1), genMat((x + y) % 2));
+		super(new PlaneBufferGeometry(1, 1), mats[(x + y) % 2]);
 		this.position.set(x-3.5, y-3.5, 0);
 		this.pos = new Vector2(x, y);
 		this.receiveShadow = true;
-	}
-
-	startSelect(){
-		(this.material as MeshPhysicalMaterial).emissive = new Color("#FF6");
-		this.selected = true;
-	}
-
-	endSelect() {
-		(this.material as MeshPhysicalMaterial).emissive = new Color(this.hovering ? "#FFF" : "#000" );
-		this.selected = false;
-	}
-
-	startHover() {
-		this.hovering = true;
-		if(!this.selected)
-			(this.material as MeshPhysicalMaterial).emissive = new Color("#FFF");
-	}
-
-	endHover() {
-		this.hovering = false;
-		if(!this.selected)(this.material as MeshPhysicalMaterial).emissive = new Color("#000");
 	}
 
 	getPos () {
@@ -47,30 +26,70 @@ class TileGeo extends Mesh {
 }
 
 export class BoardGeo extends Group {
-	tiles:TileGeo[] = [];
+	private zOffset = -0.1;
+	private tiles:TileGeo[] = [];
+	private castPlane:Mesh = new Mesh(new PlaneBufferGeometry(8, 8));
+
+	private hoverMesh:Mesh = new Mesh(new PlaneBufferGeometry(1, 1), materials.hover);
+	private selectMesh:Mesh = new Mesh(new PlaneBufferGeometry(1, 1), materials.select);
+
 	constructor() {
 		super();
+
+		this.selectMesh.position.setZ(0.01 + this.zOffset);
+		this.hoverMesh.position.setZ(0.005 + this.zOffset);
+
+		this.selectMesh.visible = false;
+		this.hoverMesh.visible = false;
+
+		this.castPlane.position.setZ(this.zOffset);
+
 		for(let x = 0; x < 8; x++) {
 			for(let y = 0; y < 8; y++) {
 				let tile = new TileGeo(y, x);
-				this.add(tile);
+				tile.position.setZ(this.zOffset)
 				this.tiles.push(tile);
 			}
 		}
+
+		this.add(...this.tiles, this.selectMesh, this.hoverMesh)
 	}
 
 	castCursor (raycaster:Raycaster):Vector2 | undefined {
-		var intersects = raycaster.intersectObjects( this.tiles );
+		var intersects = raycaster.intersectObject( this.castPlane );
 		if(intersects.length >= 1) {
-			return (intersects[0].object as TileGeo).getPos();
+			return new Vector2(Math.floor(intersects[0].point.x + 4), Math.floor(intersects[0].point.y + 4));
 		}
 		return;
 	}
 
-	getTile(x:number, y:number): TileGeo {
-		return this.tiles[y * 8 + x];
+	getTile(pos:Vector2): TileGeo {
+		return this.tiles[pos.y * 8 + pos.x];
 	}
 
 	update(d:number){
+
+	}
+
+	select(pos:Vector2|undefined){
+		if(pos){
+			let tile = this.getTile(pos);
+			this.selectMesh.position.setX(tile.position.x);
+			this.selectMesh.position.setY(tile.position.y);
+			this.selectMesh.visible = true;
+		} else {
+			this.selectMesh.visible = false;
+		}
+	}
+
+	hover(pos:Vector2|undefined){
+		if(pos){
+			let tile = this.getTile(pos);
+			this.hoverMesh.position.setX(tile.position.x);
+			this.hoverMesh.position.setY(tile.position.y);
+			this.hoverMesh.visible = true;
+		} else {
+			this.hoverMesh.visible = false;
+		}
 	}
 }
