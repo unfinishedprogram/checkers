@@ -30,7 +30,7 @@ export default class GameBoard {
 		let goal = this.geometry.getTile(to);
 
 		if(p){
-			animateVector(p.position, goal.position, 250);
+			animateVector(p.position, goal.position, 500);
 			this.tiles[this.width * to.y + to.x] = p;
 			this.set(from, undefined);
 		}
