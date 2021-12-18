@@ -15,3 +15,8 @@ canvas {
 	width: 100vw;
 	height: 100vh;
 }
+
+body {
+	padding: 0px;
+	margin: 0px;
+}

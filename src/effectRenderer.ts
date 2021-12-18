@@ -10,14 +10,17 @@ export default class EffectRenderer extends WebGLRenderer {
 	dimensions:Vector2 = new Vector2();
 
 	constructor(private scene:Scene, private camera:PerspectiveCamera){
-		super({ antialias:true });
+		super({ antialias: true, powerPreference:"high-performance" });
+		 
 		window.devicePixelRatio = 1;
-
 		this.toneMapping = ACESFilmicToneMapping;
 		this.shadowMap.enabled = true;
 		this.shadowMap.type= PCFSoftShadowMap;
+		this.toneMappingExposure = 1.2;
+		this.physicallyCorrectLights=true;
 
 		this.renderScenePass = new RenderPass(this.scene, this.camera);
+
 		this.bloomPass = new UnrealBloomPass( new Vector2( window.innerWidth, window.innerHeight ), 0.8, 0.7, 0.7 );
 		
 		this.effectComposer = new EffectComposer(this);
@@ -38,7 +41,7 @@ export default class EffectRenderer extends WebGLRenderer {
 			window.innerWidth*window.devicePixelRatio, 
 			window.innerHeight*window.devicePixelRatio
 		)
-
+		this.camera.aspect = this.dimensions.x/this.dimensions.y;
 		this.camera.updateProjectionMatrix();
 		this.setSize(this.dimensions.x, this.dimensions.y);
 		this.bloomPass.setSize(this.dimensions.x, this.dimensions.y);

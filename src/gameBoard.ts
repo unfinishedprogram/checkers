@@ -1,11 +1,11 @@
-import { Color, Group, Mesh, MeshLambertMaterial, MeshPhysicalMaterial, Vector2 } from "three";
+import { Color, Group, Mesh, MeshPhysicalMaterial, Vector2 } from "three";
 import animateVector from "./animateVector";
 import { BoardGeo } from "./boardGeo";
 import { MeshHandler } from "./meshHandler";
 import Piece, { PieceColor } from "./piece";
 
 type Tile = Piece | undefined;
-const previewMat:MeshPhysicalMaterial  = new MeshPhysicalMaterial({emissive:new Color("#0F0"), emissiveIntensity:0.25});
+const previewMat:MeshPhysicalMaterial  = new MeshPhysicalMaterial({emissive:new Color("#0F0"), emissiveIntensity:0.75});
 export default class GameBoard {
 	hovering:Vector2|undefined;
 	selected:Vector2|undefined;

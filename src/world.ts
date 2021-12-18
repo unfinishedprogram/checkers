@@ -46,8 +46,8 @@ export default class World {
 			let res = this.board.geometry.castCursor(this.createCursorCast(e));
 			if (res) this.board.release(res);
 		})
-
-		createLightSphere(10, 5, 5, 2, 512).forEach( l => this.scene.add(l));
+		this.scene.add(...createLightSphere(10, 5, 5, 5, 512));
+		// createLightSphere(10, 5, 5, 5, 512).forEach( l => this.scene.add(l));
 	}
 
 	getCamera():PerspectiveCamera {

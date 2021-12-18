@@ -36,8 +36,8 @@ export class BoardGeo extends Group {
 	constructor() {
 		super();
 
-		this.selectMesh.position.setZ(0.01 + this.zOffset);
-		this.hoverMesh.position.setZ(0.005 + this.zOffset);
+		this.selectMesh.position.setZ(0.002 + this.zOffset);
+		this.hoverMesh.position.setZ(0.001 + this.zOffset);
 
 		this.selectMesh.visible = false;
 		this.hoverMesh.visible = false;
