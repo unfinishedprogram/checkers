@@ -38,8 +38,8 @@ export default class EffectRenderer extends WebGLRenderer {
 
 	fitWindow(){
 		this.dimensions.set(
-			window.innerWidth*window.devicePixelRatio, 
-			window.innerHeight*window.devicePixelRatio
+			window.innerWidth * window.devicePixelRatio,
+			window.innerHeight * window.devicePixelRatio
 		)
 		this.camera.aspect = this.dimensions.x/this.dimensions.y;
 		this.camera.updateProjectionMatrix();

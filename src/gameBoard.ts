@@ -1,11 +1,14 @@
-import { Color, Group, Mesh, MeshPhysicalMaterial, Vector2 } from "three";
-import animateVector from "./animateVector";
+import { Color, Group, Mesh, MeshPhysicalMaterial, Vector2, Vector3 } from "three";
+import { animateProperty, animateVector } from "./animation/animate";
+import { easeInCirc, easeInOutCubic, easeOutCirc } from "./animation/easingFunctions";
 import { BoardGeo } from "./boardGeo";
 import { MeshHandler } from "./meshHandler";
 import Piece, { PieceColor } from "./piece";
 
 type Tile = Piece | undefined;
+
 const previewMat:MeshPhysicalMaterial  = new MeshPhysicalMaterial({emissive:new Color("#0F0"), emissiveIntensity:0.75});
+
 export default class GameBoard {
 	hovering:Vector2|undefined;
 	selected:Vector2|undefined;
@@ -22,15 +25,20 @@ export default class GameBoard {
 		this.tiles[this.width * pos.y + pos.x] = piece;
 		if(piece) {
 			piece.position.copy(this.geometry.getTile(pos).position);
+			piece.position.setZ(0);
 		}
 	}
 
 	move(from:Vector2, to:Vector2) {
 		let p = this.get(from);
 		let goal = this.geometry.getTile(to);
-
 		if(p){
-			animateVector(p.position, goal.position, 500);
+			animateVector(p.position, goal.position, 500, easeInOutCubic);
+			setTimeout(() => {
+				animateProperty(p!.position.z, 0, (val:number)=>p?.position.setZ(val), 250, easeInCirc);
+			}, 250);
+			animateProperty(p!.position.z, 0.5, (val:number)=>p?.position.setZ(val), 250, easeOutCirc);
+
 			this.tiles[this.width * to.y + to.x] = p;
 			this.set(from, undefined);
 		}
@@ -49,7 +57,7 @@ export default class GameBoard {
 		this.previewMeshes.forEach(mesh => {
 			this.geometry.remove(mesh);
 		})
-
+		
 		this.previewMeshes = [];
 	}
 
@@ -107,10 +115,6 @@ export default class GameBoard {
 		return;
 	}
 
-	release(pos:Vector2) {
-
-	}
-
 	initalizePieces():void {
 		for(let x = 0; x < 8; x++) {
 			for(let y = 0; y < 3; y++) {
@@ -151,38 +155,28 @@ export default class GameBoard {
 
 	getValidMoves(pos:Vector2):Vector2[] {
 		let arr:Vector2[] = [];
-		for(let dir of [
+		[ 
 			new Vector2(1, 1), 
 			new Vector2(-1, -1), 
 			new Vector2(1, -1), 
-			new Vector2(-1, 1)]){
-			//close
-			if(this.get(pos.clone().add(dir))){
-				if(!this.get(pos.clone().add(dir.clone().multiplyScalar(2)))){
-					arr.push(pos.clone().add(dir.clone().multiplyScalar(2)));
+			new Vector2(-1, 1)
+		].forEach(dir =>{
+				if(this.get(pos.clone().add(dir))){
+					if(!this.get(pos.clone().add(dir.clone().multiplyScalar(2)))){
+						arr.push(pos.clone().add(dir.clone().multiplyScalar(2)));
+					}
+				} else {
+					if(pos.clone().add(dir)){
+						arr.push(pos.clone().add(dir));
+					}
 				}
-			} else {
-				if(pos.clone().add(dir)){
-					arr.push(pos.clone().add(dir));
-				}
-			}
-		}
-
+			})
 		return arr.filter(this.isValidPos);
 	}
 
 	update(d:number) {
-		this.geometry.update(d);
-		if(this.hovering){
-			let h = this.get(this.hovering);
-			if(h){
-				h.hover(d);
-			}
-		}
-		
-		this.pieces.children.forEach((p) => {
-			let piece = (p as Piece);
-			piece.update(d);
-		})
+		if(this.hovering) this.get(this.hovering)?.hover(d);
+
+		this.pieces.children.forEach( p => (p as Piece).update(d))
 	}
 }

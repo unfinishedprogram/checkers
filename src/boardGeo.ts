@@ -1,9 +1,10 @@
-import { Color, Group, Mesh, MeshPhysicalMaterial, MeshStandardMaterial,  PlaneBufferGeometry, Raycaster, Vector2 } from "three";
+import { Color, Group, Mesh, MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial,  PlaneBufferGeometry, Raycaster, Vector2 } from "three";
 
 const mats:MeshStandardMaterial[] = [
 	new MeshPhysicalMaterial({color:"white"}),
 	new MeshPhysicalMaterial({color:"black"})
 ];
+
 const materials = {
 	hover: new MeshPhysicalMaterial({emissive:new Color("#FFF")}),
 	select: new MeshPhysicalMaterial({emissive:new Color("#FF0")})
@@ -11,17 +12,10 @@ const materials = {
 
 
 class TileGeo extends Mesh {
-	private pos:Vector2;
-
 	constructor(private x:number, private y:number) {
 		super(new PlaneBufferGeometry(1, 1), mats[(x + y) % 2]);
 		this.position.set(x-3.5, y-3.5, 0);
-		this.pos = new Vector2(x, y);
 		this.receiveShadow = true;
-	}
-
-	getPos () {
-		return this.pos;
 	}
 }
 
@@ -51,7 +45,6 @@ export class BoardGeo extends Group {
 				this.tiles.push(tile);
 			}
 		}
-
 		this.add(...this.tiles, this.selectMesh, this.hoverMesh)
 	}
 
@@ -65,10 +58,6 @@ export class BoardGeo extends Group {
 
 	getTile(pos:Vector2): TileGeo {
 		return this.tiles[pos.y * 8 + pos.x];
-	}
-
-	update(d:number){
-
 	}
 
 	select(pos:Vector2|undefined){

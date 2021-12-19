@@ -1,4 +1,4 @@
-import { Material, MathUtils, Mesh, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, Object3D } from "three";
+import { Material, MeshPhysicalMaterial, Object3D } from "three";
 import { MeshHandler } from "./meshHandler";
 
 export enum PieceColor {
@@ -6,13 +6,16 @@ export enum PieceColor {
 	WHITE
 }
 
-const mats:Material[] = [];
-mats.push(new MeshPhysicalMaterial({color:"#F55"}));
-mats.push(new MeshPhysicalMaterial({color:"#EEE"}));
+const mats:Material[] = [
+	new MeshPhysicalMaterial({color:"#F55"}),
+	new MeshPhysicalMaterial({color:"#EEE"})
+];
 
 export default class Piece extends Object3D {
 	king:Boolean = false;
-	hoverStatus:number = Math.random() * 20 + 10;
+	hoverHeight:number = Math.random() * 20 + 10;
+	currentHeight:number = Math.random() * 20 + 10;
+	hovering:boolean = false;
 
 	constructor(public color: PieceColor) {
 		super();
@@ -30,12 +33,18 @@ export default class Piece extends Object3D {
 		this.children[0].rotateX(Math.PI);
 	}
 
+	setHover(status:boolean) {
+		if(this.hovering) {
+			
+		}
+	}
+
 	hover(d:number) {
-		this.hoverStatus += d/1000;
+		this.hoverHeight += d/1000;
 	}
 
 	update(d:number){
-		this.hoverStatus *= 0.97;
-		this.position.setZ(this.hoverStatus);
+		this.hoverHeight *= 0.97;
+		// this.position.setZ(this.hoverHeight);
 	}
 }

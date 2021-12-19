@@ -24,6 +24,7 @@ export default class StatsScreen {
 			info.textContent = `${prop} : ${this.renderer.info.memory[prop as MemoryInfoProp]}`
 			this.elm.appendChild(info);
 		}
+		
 		let info = document.createElement("span");
 		info.textContent = `frameTime : ${delta.toPrecision(2)}`;
 		this.elm.appendChild(info);
