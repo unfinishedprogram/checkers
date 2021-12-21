@@ -1,9 +1,9 @@
 import { Color, Group, Mesh, MeshPhysicalMaterial, Vector2, Vector3 } from "three";
 import { animateProperty, animateVector } from "./animation/animate";
-import { easeInCirc, easeInOutCubic, easeOutCirc } from "./animation/easingFunctions";
 import { BoardGeo } from "./boardGeo";
 import { MeshHandler } from "./meshHandler";
 import Piece, { PieceColor } from "./piece";
+import easingFunctions from "./animation/easingFunctions";
 
 type Tile = Piece | undefined;
 
@@ -25,7 +25,7 @@ export default class GameBoard {
 		this.tiles[this.width * pos.y + pos.x] = piece;
 		if(piece) {
 			piece.position.copy(this.geometry.getTile(pos).position);
-			piece.position.setZ(0);
+			piece.position.setY(0);
 		}
 	}
 
@@ -33,11 +33,11 @@ export default class GameBoard {
 		let p = this.get(from);
 		let goal = this.geometry.getTile(to);
 		if(p){
-			animateVector(p.position, goal.position, 500, easeInOutCubic);
+			animateVector(p.position, goal.position, 500, easingFunctions.easeInOutCubic);
 			setTimeout(() => {
-				animateProperty(p!.position.z, 0, (val:number)=>p?.position.setZ(val), 250, easeInCirc);
+				animateProperty(p!.position.y, 0, (val:number)=>p?.position.setY(val), 250, easingFunctions.easeInCubic);
 			}, 250);
-			animateProperty(p!.position.z, 0.5, (val:number)=>p?.position.setZ(val), 250, easeOutCirc);
+			animateProperty(p!.position.y, 0.5, (val:number)=>p?.position.setY(val), 250, easingFunctions.easeOutCubic);
 
 			this.tiles[this.width * to.y + to.x] = p;
 			this.set(from, undefined);
@@ -46,7 +46,7 @@ export default class GameBoard {
 
 	setPreview(pos:Vector2, mesh:Mesh) {
 		mesh.position.copy(this.geometry.getTile(pos).position);
-		mesh.rotateX(Math.PI/2)
+		// mesh.rotateX(Math.PI/2)
 		this.geometry.add(mesh);
 		mesh.castShadow=false;
 		mesh.receiveShadow=false;

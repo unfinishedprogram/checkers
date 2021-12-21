@@ -7,12 +7,12 @@
     {
       "type": "SCALAR",
       "componentType": 5123,
-      "count": 228
+      "count": 240
     },
     {
       "type": "VEC3",
       "componentType": 5126,
-      "count": 152,
+      "count": 160,
       "max": [
         8,
         0.5,
@@ -27,46 +27,30 @@
     {
       "type": "VEC3",
       "componentType": 5126,
-      "count": 152
+      "count": 160
     },
     {
       "type": "VEC2",
       "componentType": 5126,
-      "count": 152
+      "count": 160
     }
   ],
   "bufferViews": [
     {
       "buffer": 0,
       "byteOffset": 0,
-      "byteLength": 565
+      "byteLength": 691
     }
   ],
   "buffers": [
     {
       "uri": "dracoboard.bin",
-      "byteLength": 565
-    }
-  ],
-  "materials": [
-    {
-      "name": "Material",
-      "doubleSided": true,
-      "pbrMetallicRoughness": {
-        "baseColorFactor": [
-          0.800000011920929,
-          0.800000011920929,
-          0.800000011920929,
-          1
-        ],
-        "roughnessFactor": 0.4000000059604645,
-        "metallicFactor": 0
-      }
+      "byteLength": 691
     }
   ],
   "meshes": [
     {
-      "name": "Cube",
+      "name": "Cube.001",
       "primitives": [
         {
           "attributes": {
@@ -75,7 +59,6 @@
             "TEXCOORD_0": 3
           },
           "mode": 4,
-          "material": 0,
           "indices": 0,
           "extensions": {
             "KHR_draco_mesh_compression": {
@@ -94,6 +77,12 @@
   "nodes": [
     {
       "name": "board",
+      "rotation": [
+        0,
+        -1,
+        0,
+        4.371138828673793e-8
+      ],
       "mesh": 0
     }
   ],

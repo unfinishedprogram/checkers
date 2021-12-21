@@ -20,7 +20,14 @@ export function animateVector(vec: Vector3, goal:Vector3, t:number, easingFuncti
 	requestAnimationFrame(animate);
 }
 
-export function animateProperty(start:number, goal:number, set:(val:number) => void, t:number, easingFunction: (x:number) => number):void {
+export function animateProperty(
+	start:number, 
+	goal:number, 
+	set:(val:number) => void, 
+	t:number, 
+	easingFunction: (x:number) => number
+
+	):void {
 	let lastFrame = performance.now();
 	let elapsed = 0;
 	const diff = goal-start;

@@ -7,8 +7,8 @@ export enum PieceColor {
 }
 
 const mats:Material[] = [
-	new MeshPhysicalMaterial({color:"#F55"}),
-	new MeshPhysicalMaterial({color:"#EEE"})
+	new MeshPhysicalMaterial({color:"#880000", roughness:.25}),
+	new MeshPhysicalMaterial({color:"#FFEEEE", roughness:.25})
 ];
 
 export default class Piece extends Object3D {
@@ -23,8 +23,7 @@ export default class Piece extends Object3D {
 			let mesh = m.clone();
 			mesh.material = mats[color == PieceColor.RED ? 1 : 0];
 			this.add(mesh);
-			this.rotateX(Math.PI/2)
-			this.children[0].rotateX(Math.PI);
+			mesh.rotateX(Math.PI);
 		})
 	}
 
