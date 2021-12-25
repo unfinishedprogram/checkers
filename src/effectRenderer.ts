@@ -1,10 +1,11 @@
-import { ACESFilmicToneMapping, LinearEncoding, PCFSoftShadowMap, PerspectiveCamera, Scene, sRGBEncoding, Vector2, WebGLRenderer } from "three";
+import { ACESFilmicToneMapping, PerspectiveCamera, Scene, Vector2, WebGLRenderer } from "three";
 import { EffectComposer } from "../node_modules/three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "../node_modules/three/examples/jsm/postprocessing/RenderPass";
 import { UnrealBloomPass } from "../node_modules/three/examples/jsm/postprocessing/UnrealBloomPass";
 import { SSAOPass } from "../node_modules/three/examples/jsm/postprocessing/SSAOPass"
 import { SMAAPass } from "../node_modules/three/examples/jsm/postprocessing/SMAAPass"
 import { TAARenderPass } from "../node_modules/three/examples/jsm/postprocessing/TAARenderPass"
+
 export default class EffectRenderer extends WebGLRenderer {
 	effectComposer: EffectComposer;
 	renderScenePass: RenderPass;
@@ -20,24 +21,24 @@ export default class EffectRenderer extends WebGLRenderer {
 		// this.shadowMap.type = PCFSoftShadowMap;
 		// this.outputEncoding = LinearEncoding;
 		this.toneMapping = ACESFilmicToneMapping;
-		this.toneMappingExposure = 1;
+		this.toneMappingExposure = 2;
 		this.physicallyCorrectLights=true;
 		this.renderScenePass = new RenderPass(this.scene, this.camera);
 		this.taaPass = new TAARenderPass(this.scene, this.camera)
-		this.bloomPass = new UnrealBloomPass( new Vector2( window.innerWidth, window.innerHeight ), 0.8, 0.7, 0.8 );
+		this.bloomPass = new UnrealBloomPass( new Vector2( window.innerWidth, window.innerHeight ), 0.8, 0.7, 0.9 );
 		this.ssaoPass = new SSAOPass(this.scene, this.camera, window.innerWidth, window.innerHeight);
 		this.effectComposer = new EffectComposer(this);
 		this.smaaPass = new SMAAPass();
-		this.ssaoPass.kernelRadius = 0.1;
+
+		this.ssaoPass.kernelRadius = 0.2;
 		this.ssaoPass.minDistance = 0;
 		this.ssaoPass.maxDistance = 2;
 
 		this.effectComposer.addPass(this.ssaoPass);
 		this.effectComposer.addPass(this.bloomPass);
 		this.effectComposer.addPass(this.smaaPass);
-
+		
 		window.addEventListener("resize", () => this.fitWindow())
-
 		this.fitWindow();
 	}
 
@@ -46,15 +47,11 @@ export default class EffectRenderer extends WebGLRenderer {
 	}
 
 	fitWindow(){
-		console.log(devicePixelRatio);
-
 		this.dimensions.set (
 			Math.floor(window.innerWidth * window.devicePixelRatio),
 			Math.floor(window.innerHeight * window.devicePixelRatio)
 		)
 
-		window.
-		console.log(this.dimensions)
 		this.camera.aspect = this.dimensions.x/this.dimensions.y;
 		this.camera.updateProjectionMatrix();
 		this.setSize(this.dimensions.x, this.dimensions.y);

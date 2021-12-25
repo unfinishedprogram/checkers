@@ -1,31 +1,18 @@
 import { 
-	Color, 
 	Group, 
-	Material, 
 	Mesh, 
-	MeshPhysicalMaterial, 
 	PlaneBufferGeometry, 
-	PlaneGeometry, 
 	Raycaster, 
 	Vector2
 } from "three";
-
-const mats:Material[] = [
-	new MeshPhysicalMaterial({color:"#FAE9C5", roughness:0.3}),
-	new MeshPhysicalMaterial({color:"#090909", roughness:0.3})
-];
-
-const materials = {
-	hover: new MeshPhysicalMaterial({emissive:new Color("#FFF").convertSRGBToLinear(), emissiveIntensity:20}),
-	select: new MeshPhysicalMaterial({emissive:new Color("#FF0").convertSRGBToLinear(), emissiveIntensity:20})
-}
-
+import { geoHandlerInstance, materialHandlerInstance } from "./assetHandling/assetCaches";
+import createMesh from "./assetHandling/createMesh";
 
 class TileGeo extends Mesh {
 	constructor(x:number, y:number) {
-		super(new PlaneGeometry(1, 1), mats[(x + y) % 2]);
+		super(geoHandlerInstance.getAsset("tile").clone(), materialHandlerInstance.getAsset((x+y) % 2 ? "tile_white" : "tile_black"));
 		this.position.set(x-3.5, 0, y-3.5);
-		this.rotateX(-Math.PI/2)
+		this.rotateX(-Math.PI/2);
 		this.receiveShadow = true;
 	}
 }
@@ -35,8 +22,9 @@ export class BoardGeo extends Group {
 	private tiles:TileGeo[] = [];
 	private castPlane:Mesh = new Mesh(new PlaneBufferGeometry(8, 8));
 
-	private hoverMesh:Mesh = new Mesh(new PlaneBufferGeometry(1, 1), materials.hover);
-	private selectMesh:Mesh = new Mesh(new PlaneBufferGeometry(1, 1), materials.select);
+	private hoverMesh:Mesh = createMesh("tile", "hover");
+	private selectMesh:Mesh = createMesh("tile", "selected");
+	private previewMeshes:Mesh[] = [];
 
 	constructor() {
 		super();
@@ -48,9 +36,16 @@ export class BoardGeo extends Group {
 
 		this.castPlane.position.setY(this.yOffset*2);
 		this.add(this.castPlane);
-		this.castPlane.rotateX(-Math.PI/2)
-		this.hoverMesh.rotateX(-Math.PI/2)
+		this.castPlane.rotateX(-Math.PI/2);
+		this.hoverMesh.rotateX(-Math.PI/2);
 		this.selectMesh.rotateX(-Math.PI/2);
+
+		for(let i = 0; i < 4; i++){
+			let mesh = createMesh("piece", "preview")
+			mesh.scale.set(0.4, 0.4, 0.4);
+			this.previewMeshes.push(mesh)
+			mesh.receiveShadow = false;
+		}
 
 		for(let x = 0; x < 8; x++) {
 			for(let y = 0; y < 8; y++) {
@@ -96,5 +91,22 @@ export class BoardGeo extends Group {
 		} else {
 			this.hoverMesh.visible = false;
 		}
+	}
+
+	setPreview(pos:Vector2, mesh:Mesh) {
+		mesh.position.copy(this.getTile(pos).position);
+		this.add(mesh);
+		mesh.receiveShadow = false;
+		this.previewMeshes.push(mesh);
+	}
+
+	clearPreview():void{
+		this.previewMeshes.forEach(mesh => {
+			this.remove(mesh);
+		})
+	}
+
+	showPreviews(places:Vector2[]){
+		places.forEach((place, i) => this.setPreview(place, this.previewMeshes[i]));
 	}
 }

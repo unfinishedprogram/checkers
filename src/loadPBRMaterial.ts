@@ -1,8 +1,6 @@
 import { Material, MeshPhysicalMaterialParameters, MeshStandardMaterial, RepeatWrapping, Texture, TextureLoader, Vector2 } from "three";
 
-export default async function loadPBRMaterial(name:string):Promise<Material> {
-	let loader = new TextureLoader();
-
+export default async function loadPBRMaterial(name:string, loader:TextureLoader):Promise<Material> {
 	async function loadAndApply(path:string):Promise<Texture> {
 		let asset = await loader.loadAsync(path);
 		asset.repeat.set(2, 2);

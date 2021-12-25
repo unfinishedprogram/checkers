@@ -1,17 +1,14 @@
-import { Color, Group, Mesh, MeshPhysicalMaterial, Vector2, Vector3 } from "three";
+import { Group, Mesh, Vector2 } from "three";
 import { animateProperty, animateVector } from "./animation/animate";
 import { BoardGeo } from "./boardGeo";
-import { MeshHandler } from "./meshHandler";
 import Piece, { PieceColor } from "./piece";
 import easingFunctions from "./animation/easingFunctions";
 
 type Tile = Piece | undefined;
 
-const previewMat:MeshPhysicalMaterial  = new MeshPhysicalMaterial({emissive:new Color("#0F0"), emissiveIntensity:0.75});
-
 export default class GameBoard {
-	hovering:Vector2|undefined;
-	selected:Vector2|undefined;
+	hovering: Vector2|undefined;
+	selected: Vector2|undefined;
 	geometry = new BoardGeo();
 	previewMeshes:Mesh[] = [];
 	private pieces:Group = new Group();
@@ -35,37 +32,21 @@ export default class GameBoard {
 		if(p){
 			animateVector(p.position, goal.position, 500, easingFunctions.easeInOutCubic);
 			setTimeout(() => {
-				animateProperty(p!.position.y, 0, (val:number)=>p?.position.setY(val), 250, easingFunctions.easeInCubic);
+				animateProperty(p!.position.y, 0, (val:number) => p?.position.setY(val), 250, easingFunctions.easeInCubic);
 			}, 250);
-			animateProperty(p!.position.y, 0.5, (val:number)=>p?.position.setY(val), 250, easingFunctions.easeOutCubic);
+			animateProperty(p!.position.y, 0.5, (val:number) => p?.position.setY(val), 250, easingFunctions.easeOutCubic);
 
 			this.tiles[this.width * to.y + to.x] = p;
 			this.set(from, undefined);
 		}
 	}
 
-	setPreview(pos:Vector2, mesh:Mesh) {
-		mesh.position.copy(this.geometry.getTile(pos).position);
-		// mesh.rotateX(Math.PI/2)
-		this.geometry.add(mesh);
-		mesh.castShadow=false;
-		mesh.receiveShadow=false;
-		this.previewMeshes.push(mesh);
-	}
-
-	clearPreview():void{
-		this.previewMeshes.forEach(mesh => {
-			this.geometry.remove(mesh);
-		})
-		
-		this.previewMeshes = [];
+	clearPreview():void {
+		this.geometry.clearPreview();
 	}
 
 	showPreviews(places:Vector2[]){
-		MeshHandler.getMesh("piece").then((mesh) => {
-			mesh.material = previewMat;
-			places.forEach(place => this.setPreview(place, mesh.clone()))
-		})
+		this.geometry.showPreviews(places);
 	}
 
 	get(pos:Vector2): Tile {

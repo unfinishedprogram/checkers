@@ -36,7 +36,6 @@ export function animateProperty(
 		elapsed += performance.now()-lastFrame;
 		lastFrame = performance.now();
 		set(start + diff * easingFunction((elapsed/t)));
-		console.log("Animating")
 		if(elapsed >= t){
 			set(goal);
 		} else {

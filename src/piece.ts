@@ -1,15 +1,10 @@
-import { Material, MeshPhysicalMaterial, Object3D } from "three";
-import { MeshHandler } from "./meshHandler";
+import { Object3D } from "three";
+import createMesh from "./assetHandling/createMesh";
 
 export enum PieceColor {
 	RED,
 	WHITE
 }
-
-const mats:Material[] = [
-	new MeshPhysicalMaterial({color:"#880000", roughness:.25}),
-	new MeshPhysicalMaterial({color:"#FFEEEE", roughness:.25})
-];
 
 export default class Piece extends Object3D {
 	king:Boolean = false;
@@ -19,12 +14,8 @@ export default class Piece extends Object3D {
 
 	constructor(public color: PieceColor) {
 		super();
-		MeshHandler.loadMesh("dracopiece.gltf", "piece").then((m) => {
-			let mesh = m.clone();
-			mesh.material = mats[color == PieceColor.RED ? 1 : 0];
-			this.add(mesh);
-			mesh.rotateX(Math.PI);
-		})
+		this.add(createMesh("piece",	color == PieceColor.RED ? "piece_red" : "piece_white"));
+		this.scale.set(0.4, 0.4, 0.4);
 	}
 
 	public makeKing():void {
