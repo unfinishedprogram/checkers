@@ -20,6 +20,10 @@ export class ControlledCamera extends PerspectiveCamera {
 		this.setAngle(this.angle+radians)
 	}
 
+	getAngle(){
+		return this.angle;
+	}
+
 	setDomElement(elm:HTMLElement){
 		elm.addEventListener("mousedown", (e) => {
 			if(e.button == 2 ) this.dragging = true;
@@ -30,12 +34,14 @@ export class ControlledCamera extends PerspectiveCamera {
 		});
 
 		elm.addEventListener("mouseLeave", (e) => this.dragging = false);
-		elm.addEventListener("mousemove", (e) => this.rotateCamera(e.movementX * -0.01));
+		elm.addEventListener("mousemove", (e) => {
+			if(this.dragging){
+				this.rotateCamera(e.movementX * -0.01)
+			}
+		});
 	}
 
 	setAngle(radians:number) {
-		if(!this.dragging) return;
-
 		this.angle = radians;
 		this.offset.set(Math.sin(this.angle) * this.distance, this.height, Math.cos(this.angle) * this.distance);
 		this.position.copy(this.center).add(this.offset);

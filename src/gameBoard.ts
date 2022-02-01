@@ -1,22 +1,31 @@
-import { Group, Mesh, Vector2 } from "three";
+import { Group, Mesh, Vector2, Vector3 } from "three";
 import { animateProperty, animateVector } from "./animation/animate";
 import { BoardGeo } from "./boardGeo";
 import Piece, { PieceColor } from "./piece";
 import easingFunctions from "./animation/easingFunctions";
+import easingsFunctions from "./animation/easingFunctions";
 
 type Tile = Piece | undefined;
 
 export default class GameBoard {
+	whiteTakenPile = new Vector3(3, -0.65, -5);
+	redTakenPile = new Vector3(-3, -0.65, 5);
 	hovering: Vector2|undefined;
 	selected: Vector2|undefined;
 	geometry = new BoardGeo();
 	previewMeshes:Mesh[] = [];
 	private pieces:Group = new Group();
-
+	currentTurn = PieceColor.WHITE;
 	tiles: Tile[] = [];
+
+	jumpChain:boolean = false;
 
 	private width : number = 8;
 	private height : number = 8;
+
+	constructor(private setTurn:(turn:PieceColor) => void){
+		setTurn(this.currentTurn);
+	};
 
 	set(pos:Vector2, piece: Tile) {
 		this.tiles[this.width * pos.y + pos.x] = piece;
@@ -26,18 +35,68 @@ export default class GameBoard {
 		}
 	}
 
-	move(from:Vector2, to:Vector2) {
-		let p = this.get(from);
-		let goal = this.geometry.getTile(to);
-		if(p){
-			animateVector(p.position, goal.position, 500, easingFunctions.easeInOutCubic);
-			setTimeout(() => {
-				animateProperty(p!.position.y, 0, (val:number) => p?.position.setY(val), 250, easingFunctions.easeInCubic);
-			}, 250);
-			animateProperty(p!.position.y, 0.5, (val:number) => p?.position.setY(val), 250, easingFunctions.easeOutCubic);
+	takePiece(pos:Vector2){	
+		const piece = this.get(pos) as Piece;
+		let pile = piece.color == PieceColor.RED ? this.redTakenPile : this.whiteTakenPile;
 
-			this.tiles[this.width * to.y + to.x] = p;
+		setTimeout(() => {
+			pile.add(new Vector3(0, 0.1, 0));
+			animateVector(piece!.position, pile , 500, easingsFunctions.easeInOutCubic);
+		}, 250)
+
+		this.set(pos, undefined)
+	}
+
+	nextTurn(){
+		this.currentTurn = this.currentTurn == PieceColor.RED ? PieceColor.WHITE : PieceColor.RED;
+		this.setTurn(this.currentTurn);
+	}
+
+	move(from:Vector2, to:Vector2) {
+		const piece = this.get(from);
+		const goal = this.geometry.getTile(to);
+
+		if(piece){
+			if(Math.abs(from.clone().sub(to).x) > 1){ 
+				this.jumpChain = true;
+				const midDiff = (to.clone().sub(from)).multiplyScalar(0.5);
+				const jumpedPos = from.clone().add(midDiff);
+				const jumpedPiece = this.get(jumpedPos);
+
+				if(jumpedPiece){
+					this.takePiece(jumpedPos);
+				}
+			}
+
+			animateVector(piece.position, goal.position, 500, easingFunctions.easeInOutCubic);
+			
+			setTimeout(() => {
+				animateProperty(piece!.position.y, 0, (val:number) => piece?.position.setY(val), 250, easingFunctions.easeInCubic);
+			}, 250);
+
+			animateProperty(piece!.position.y, 0.5, (val:number) => piece?.position.setY(val), 250, easingFunctions.easeOutCubic);
+
+			this.set(to, piece);
+
+			console.log("This should exist we are setting on the previous line", this.get(to))
+
 			this.set(from, undefined);
+
+			if(to.y == 7 || to.y == 0) {
+				piece.makeKing();
+			}
+
+			if(this.jumpChain){
+				if(this.getValidMoves(to).length) {
+					console.log("chaining jumps", to);
+					this.click(to);
+				} else {
+					this.jumpChain = false;
+					this.nextTurn();
+				}
+			} else {
+				this.nextTurn();
+			}
 		}
 	}
 
@@ -45,8 +104,8 @@ export default class GameBoard {
 		this.geometry.clearPreview();
 	}
 
-	showPreviews(places:Vector2[]){
-		this.geometry.showPreviews(places);
+	showPreviews(places:Vector2[], piece:Piece) {
+		this.geometry.showPreviews(places, piece);
 	}
 
 	get(pos:Vector2): Tile {
@@ -55,14 +114,8 @@ export default class GameBoard {
 
 	click(pos:Vector2) {
 		if(this.selected){
-			let valid = false;
-
-			this.getValidMoves(this.selected).forEach(move => {
-				if(move.equals(pos)) valid = true;
-			})
-
-			if(valid){
-				this.move(this.selected, pos)
+			if(this.getValidMoves(this.selected).filter(move => move.equals(pos)).length) {
+				this.move(this.selected, pos);
 				this.geometry.select(undefined);
 				this.selected = undefined;
 				this.clearPreview();
@@ -71,10 +124,7 @@ export default class GameBoard {
 		}
 
 		if(this.selected && this.get(pos)){
-			this.geometry.select(undefined);
-			this.clearPreview();
-
-			if(this.selected.x == pos.x && this.selected.y == pos.y){
+			if(this.selected.equals(pos)){
 				this.geometry.select(undefined);
 				this.clearPreview();
 				this.selected = undefined;
@@ -83,10 +133,12 @@ export default class GameBoard {
 		}
 
 		if (this.get(pos)){
-			this.selected = pos;
-			this.geometry.select(pos);
-			this.clearPreview();
-			this.showPreviews(this.getValidMoves(pos));
+			if(this.get(pos)!.color == this.currentTurn){
+				this.selected = pos;
+				this.geometry.select(pos);
+				this.clearPreview();
+				this.showPreviews(this.getValidMoves(pos), this.get(pos)!);
+			}
 		}
 	}
 
@@ -134,30 +186,49 @@ export default class GameBoard {
 		return true;
 	}
 
+	getJumpingMoves(pos:Vector2):Vector2[] {
+		this.getValidMoves(pos).forEach(move => {
+			console.log(Math.abs(move.x - pos.x))
+		})
+
+		return this.getValidMoves(pos).filter(move => Math.abs(move.x - pos.x) == 2);
+	}
+
 	getValidMoves(pos:Vector2):Vector2[] {
+		let pieceColor = this.get(pos)!.color;
+		let king = this.get(pos)!.king;
+
 		let arr:Vector2[] = [];
-		[ 
-			new Vector2(1, 1), 
+		[ new Vector2(1, 1), 
 			new Vector2(-1, -1), 
 			new Vector2(1, -1), 
-			new Vector2(-1, 1)
-		].forEach(dir =>{
-				if(this.get(pos.clone().add(dir))){
-					if(!this.get(pos.clone().add(dir.clone().multiplyScalar(2)))){
-						arr.push(pos.clone().add(dir.clone().multiplyScalar(2)));
-					}
-				} else {
-					if(pos.clone().add(dir)){
-						arr.push(pos.clone().add(dir));
-					}
-				}
+			new Vector2(-1, 1)]
+		.forEach(dir => {
+			let dp = pos.clone().add(dir);
+			let jp = dp.clone().add(dir);
+
+			if(!this.get(dp)){
+				if(!this.jumpChain) arr.push(dp);
+			} else if(!this.get(jp) && pieceColor != this.get(dp)?.color){
+				arr.push(jp);
+			}
+		})
+
+		arr = arr.filter(this.isValidPos);
+
+		if(!king){
+			arr = arr.filter(loc => {
+				let diff = loc.clone().sub(pos);
+				return pieceColor == PieceColor.RED ? diff.y > 0 : diff.y < 0;
 			})
-		return arr.filter(this.isValidPos);
+		}
+
+		return arr;
 	}
 
 	update(d:number) {
-		if(this.hovering) this.get(this.hovering)?.hover(d);
-
-		this.pieces.children.forEach( p => (p as Piece).update(d))
+		this.pieces.children.forEach( p => {
+			(p as Piece).update();
+		})
 	}
 }

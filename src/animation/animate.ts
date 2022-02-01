@@ -40,7 +40,7 @@ export function animateProperty(
 			set(goal);
 		} else {
 			requestAnimationFrame(animate);
-		}
+	}
 	}
 	requestAnimationFrame(animate);
 }

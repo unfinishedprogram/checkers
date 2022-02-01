@@ -5,21 +5,13 @@ import {
 	Raycaster, 
 	Vector2
 } from "three";
-import { geoHandlerInstance, materialHandlerInstance } from "./assetHandling/assetCaches";
 import createMesh from "./assetHandling/createMesh";
-
-class TileGeo extends Mesh {
-	constructor(x:number, y:number) {
-		super(geoHandlerInstance.getAsset("tile").clone(), materialHandlerInstance.getAsset((x+y) % 2 ? "tile_white" : "tile_black"));
-		this.position.set(x-3.5, 0, y-3.5);
-		this.rotateX(-Math.PI/2);
-		this.receiveShadow = true;
-	}
-}
+import { createTile } from "./gameObjects/tile";
+import Piece, { PieceColor } from "./piece";
 
 export class BoardGeo extends Group {
 	private yOffset = -0.1;
-	private tiles:TileGeo[] = [];
+	private tiles:Mesh[] = [];
 	private castPlane:Mesh = new Mesh(new PlaneBufferGeometry(8, 8));
 
 	private hoverMesh:Mesh = createMesh("tile", "hover");
@@ -49,7 +41,7 @@ export class BoardGeo extends Group {
 
 		for(let x = 0; x < 8; x++) {
 			for(let y = 0; y < 8; y++) {
-				let tile = new TileGeo(y, x);
+				let tile = createTile(y, x);
 				tile.position.setY(this.yOffset)
 				this.tiles.push(tile);
 			}
@@ -67,7 +59,7 @@ export class BoardGeo extends Group {
 		return;
 	}
 
-	getTile(pos:Vector2): TileGeo {
+	getTile(pos:Vector2): Mesh {
 		return this.tiles[pos.y * 8 + pos.x];
 	}
 
@@ -93,9 +85,19 @@ export class BoardGeo extends Group {
 		}
 	}
 
-	setPreview(pos:Vector2, mesh:Mesh) {
+	setPreview(pos:Vector2, mesh:Mesh, piece:Piece) {
 		mesh.position.copy(this.getTile(pos).position);
 		this.add(mesh);
+		mesh.rotation.set(0, 0, 0);
+
+		if(piece.color == PieceColor.RED){
+			mesh.rotateY(Math.PI);
+		}
+		
+		if(!piece.king){
+			mesh.rotateX(Math.PI);
+		}
+
 		mesh.receiveShadow = false;
 		this.previewMeshes.push(mesh);
 	}
@@ -106,7 +108,7 @@ export class BoardGeo extends Group {
 		})
 	}
 
-	showPreviews(places:Vector2[]){
-		places.forEach((place, i) => this.setPreview(place, this.previewMeshes[i]));
+	showPreviews(places:Vector2[], piece:Piece){
+		places.forEach((place, i) => this.setPreview(place, this.previewMeshes[i], piece));
 	}
 }
