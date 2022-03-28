@@ -1,6 +1,5 @@
 import { Group, Mesh, Vector2, Vector3 } from "three";
 import { animateProperty, animateVector } from "./animation/animate";
-import { BoardGeo } from "./boardGeo";
 import Piece, { PieceColor } from "./piece";
 import easingFunctions from "./animation/easingFunctions";
 import easingsFunctions from "./animation/easingFunctions";
@@ -10,11 +9,15 @@ type Tile = Piece | undefined;
 export default class GameBoard {
 	whiteTakenPile = new Vector3(3, -0.65, -5);
 	redTakenPile = new Vector3(-3, -0.65, 5);
+
 	hovering: Vector2|undefined;
 	selected: Vector2|undefined;
+
 	geometry = new BoardGeo();
+
 	previewMeshes:Mesh[] = [];
 	private pieces:Group = new Group();
+
 	currentTurn = PieceColor.WHITE;
 	tiles: Tile[] = [];
 

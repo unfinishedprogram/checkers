@@ -17,17 +17,22 @@ export function createLightSphere (
 			Math.cos(2 * Math.PI * (i / (n*4)) - Math.PI/4) * d,
 			h
 		);
+
 		let helper = new CameraHelper(l.shadow.camera);
-		
-		l.shadow.camera.left = - 10;
-		l.shadow.camera.right = 10;
-		l.shadow.camera.top = 10;
-		l.shadow.camera.bottom = - 10;
-		l.shadow.mapSize.width = resolution;
-		l.shadow.mapSize.height = resolution;
+		const shadow = l.shadow;
+		const camera = shadow.camera;
+		camera.left = - 10;
+		camera.right = 10;
+		camera.top = 10;
+		camera.bottom = - 10;
+
+		shadow.mapSize.width = resolution;
+		shadow.mapSize.height = resolution;
+		shadow.radius = 5;
+
 		l.castShadow = true;
-		l.shadow.radius = 5;
 		lights.push(l, helper);
 	}
+	
 	return lights;
 }

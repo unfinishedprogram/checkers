@@ -13,7 +13,6 @@ export class ControlledCamera extends PerspectiveCamera {
 		private distance:number, 
 		private height:number) {
 		super(fov, ratio, close, far);
-
 	}
 
 	rotateCamera(radians:number){
@@ -34,6 +33,7 @@ export class ControlledCamera extends PerspectiveCamera {
 		});
 
 		elm.addEventListener("mouseLeave", (e) => this.dragging = false);
+
 		elm.addEventListener("mousemove", (e) => {
 			if(this.dragging){
 				this.rotateCamera(e.movementX * -0.01)

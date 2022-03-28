@@ -3,7 +3,7 @@ import loadPBRMaterial from "../loadPBRMaterial";
 import AssetHandler from "./assetHandler";
 
 export default class MaterialHandler extends AssetHandler<Material> {
-	constructor(private loader = new TextureLoader()) {
+	constructor(loader = new TextureLoader()) {
 		super((path) => loadPBRMaterial(path, loader));
 	}
 
