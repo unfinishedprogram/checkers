@@ -5,10 +5,9 @@ import { UnrealBloomPass } from "../node_modules/three/examples/jsm/postprocessi
 import { SSAOPass } from "../node_modules/three/examples/jsm/postprocessing/SSAOPass"
 import { SMAAPass } from "../node_modules/three/examples/jsm/postprocessing/SMAAPass"
 import { TAARenderPass } from "../node_modules/three/examples/jsm/postprocessing/TAARenderPass"
-
 export default class EffectRenderer extends WebGLRenderer {
 	effectComposer: EffectComposer;
-	renderScenePass: RenderPass;
+	// renderScenePass: RenderPass;
 	bloomPass: UnrealBloomPass;
 	ssaoPass: SSAOPass;
 	taaPass: TAARenderPass;
@@ -23,7 +22,7 @@ export default class EffectRenderer extends WebGLRenderer {
 		this.toneMapping = ACESFilmicToneMapping;
 		this.toneMappingExposure = 2;
 		this.physicallyCorrectLights=true;
-		this.renderScenePass = new RenderPass(this.scene, this.camera);
+		// this.renderScenePass = new RenderPass(this.scene, this.camera);
 		this.taaPass = new TAARenderPass(this.scene, this.camera)
 		this.bloomPass = new UnrealBloomPass( new Vector2( window.innerWidth, window.innerHeight ), 0.8, 0.7, 0.9 );
 		this.ssaoPass = new SSAOPass(this.scene, this.camera, window.innerWidth, window.innerHeight);

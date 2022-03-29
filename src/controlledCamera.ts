@@ -1,10 +1,12 @@
 import { PerspectiveCamera, Vector3 } from "three";
+import InputHandler from "./inputHandler";
 
 export class ControlledCamera extends PerspectiveCamera {
 	private angle:number = 0;
 	private offset = new Vector3();
 	private dragging = false;
 	constructor(
+		private inputHandler:InputHandler,
 		fov:number, 
 		ratio:number, 
 		close:number, 
@@ -13,6 +15,29 @@ export class ControlledCamera extends PerspectiveCamera {
 		private distance:number, 
 		private height:number) {
 		super(fov, ratio, close, far);
+		this.setupMouseEvents();
+	}
+
+	setupMouseEvents() {
+		this.inputHandler.addOn("mousedown", e => {
+			if(e.button == 2 ) this.dragging = true;
+		})
+
+		this.inputHandler.addOn("mouseup", e => {
+			if(e.button == 2 ) this.dragging = false;
+		})
+		
+		this.inputHandler.addOn("mouseleave", e => {
+			if(e.button == 2 ) this.dragging = false;
+		})
+
+		this.inputHandler.addOn("mouseleave", e => this.dragging = false);
+
+		this.inputHandler.addOn("mousemove", e => {
+			if(this.dragging){
+				this.rotateCamera(e.movementX * -0.01)
+			}
+		})
 	}
 
 	rotateCamera(radians:number){
@@ -21,24 +46,6 @@ export class ControlledCamera extends PerspectiveCamera {
 
 	getAngle(){
 		return this.angle;
-	}
-
-	setDomElement(elm:HTMLElement){
-		elm.addEventListener("mousedown", (e) => {
-			if(e.button == 2 ) this.dragging = true;
-		});
-
-		elm.addEventListener("mouseup", (e) => {
-			if(e.button == 2 ) this.dragging = false;
-		});
-
-		elm.addEventListener("mouseLeave", (e) => this.dragging = false);
-
-		elm.addEventListener("mousemove", (e) => {
-			if(this.dragging){
-				this.rotateCamera(e.movementX * -0.01)
-			}
-		});
 	}
 
 	setAngle(radians:number) {
