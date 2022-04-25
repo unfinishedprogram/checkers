@@ -7,7 +7,6 @@ interface IPieceModel {
 // 2D array of pieces
 type IBoardModel = (IPieceModel|null)[][]
 
-
 export default class CheckersModel {
 	board:IBoardModel = [];
 
@@ -38,7 +37,6 @@ export default class CheckersModel {
 	setPiece(pos:Vector2, piece:IPieceModel) {
 		return this.board[pos.y][pos.x] = piece;
 	}
-
 	
 	// Swaps the values of two board locations, 
 	// Perfect for moving a piece, should almost always be prefered to removing and then adding

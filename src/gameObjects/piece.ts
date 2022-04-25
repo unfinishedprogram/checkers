@@ -1,17 +1,15 @@
 import { Object3D, Vector3 } from "three";
 import createMesh from "../assetHandling/createMesh";
 
-export enum PieceColor { RED, WHITE };
 
 export default class Piece extends Object3D {
 	king = false;
-	
-	constructor(public color: PieceColor) {
+	constructor(public color: "red"|"white") {
 		super();
-		this.add(createMesh("piece",	color == PieceColor.RED ? "piece_red" : "piece_white"));
+		this.add(createMesh("piece", `piece_${color}`))
 		this.scale.set(0.4, 0.4, 0.4);
 		this.children[0].rotateX(Math.PI);
-		this.children[0].rotateY(color == PieceColor.RED ? Math.PI : 0);
+		this.children[0].rotateY(color == "red" ? Math.PI : 0);
 	}
 
 	public makeKing():void {
