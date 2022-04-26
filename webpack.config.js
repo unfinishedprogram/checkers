@@ -1,9 +1,13 @@
 const path = require('path');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   entry: './src/index.ts',
-  mode: 'development',
+  mode: 'production',
   watch: true,
+  plugins: [
+    new BundleAnalyzerPlugin()
+  ],
   module: {
     rules: [
       {
