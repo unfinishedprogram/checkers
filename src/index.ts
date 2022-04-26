@@ -13,7 +13,6 @@ Promise.all ([
 	materialHandlerInstance.loadAsset("planks.png", "planks"),
 	materialHandlerInstance.loadAsset("table.png", "table"),
 	materialHandlerInstance.loadAsset("plywood.png", "plywood"),
-	
 	materialHandlerInstance.addMaterial(new MeshPhysicalMaterial({color:"#FAE9C5", roughness:0.3}), "tile_white"),
 	materialHandlerInstance.addMaterial(new MeshPhysicalMaterial({color:"#090909", roughness:0.3}), "tile_black"),
 	materialHandlerInstance.addMaterial(new MeshPhysicalMaterial({color:"#880000", roughness:.25}), "piece_red"),

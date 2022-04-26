@@ -3,7 +3,7 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import AssetHandler from "./assetHandler";
 
-export default class GLTFGeometryHandler extends AssetHandler<BufferGeometry> {
+export class GLTFGeometryHandler extends AssetHandler<BufferGeometry> {
 	private loader = new GLTFLoader();
 	
 	constructor(){
