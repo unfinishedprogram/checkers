@@ -6,7 +6,6 @@ export default class StatsScreen {
 	constructor(renderer:WebGLRenderer) {
 		this.elm.id = "statsScreen";
 		this.renderer = renderer;
-		this.renderer.domElement.appendChild(this.elm);
 	}
 
 	update(delta : number) {

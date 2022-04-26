@@ -7,13 +7,16 @@ import {
 	Vector3,
 } from "three";
 
-import GameBoardController from "./gameBoard/gameBoardController";
+import GameBoard from "./gameBoard";
 import StatsScreen from "./statsScreen";
 import EffectRenderer from "./effectRenderer";
 import { RGBELoader } from "../node_modules/three/examples/jsm/loaders/RGBELoader";
 import { ControlledCamera } from "./controlledCamera";
 import { createTable } from "./gameObjects/table";
 import createBoard from "./gameObjects/board";
+import { PieceColor } from "./piece";
+import { animateProperty } from "./animation/animate";
+import easingsFunctions from "./animation/easingFunctions";
 
 export default class World {
 	private deltaT: number = 0;
@@ -21,8 +24,8 @@ export default class World {
 	private scene: Scene;
 	private statsScreen: StatsScreen;
 	private raycaster: Raycaster = new Raycaster();
+	private board: GameBoard;
 	private renderer: EffectRenderer;
-	private boardController: GameBoardController;
 
 	constructor() {
 		this.scene = new Scene();
@@ -31,14 +34,22 @@ export default class World {
 
 		this.statsScreen = new StatsScreen(this.renderer);
 
+		document.body.appendChild( this.renderer.domElement );
 		this.camera.setDomElement(this.renderer.domElement);
 
+		this.camera.position.set(0, 6, -6);
+		this.camera.lookAt(0, 0, 0);
+
 		document.body.appendChild(this.statsScreen.getElm());
-		document.body.appendChild(this.renderer.domElement);
 
-		this.boardController = new GameBoardController();
+		this.board = new GameBoard((color:PieceColor)	 => {
+			animateProperty(this.camera.getAngle(),color == PieceColor.WHITE ? 0 : Math.PI, val => this.camera.setAngle(val), 2000, easingsFunctions.easeInOutCubic  )
+		});
 
-		this.addObject(this.boardController.view);
+		this.board.initalizePieces();
+
+		this.addObject(this.board.getGeometry());
+		this.addObject(this.board.getPieces());
 
 		window.addEventListener("keypress", () => this.camera.rotateCamera(0.01));
 
@@ -59,11 +70,11 @@ export default class World {
 		return this.camera;
 	}
 
+
 	setupMouseHandler() {
 		this.renderer.domElement.addEventListener("mousedown", (e) => {
-			let res = this.boardController.view.castCursor(this.createCursorCast(e));
-
-			if (res) this.boardController.click(res);
+			let res = this.board.geometry.castCursor(this.createCursorCast(e));
+			if (res) this.board.click(res);
 		})
 
 		this.renderer.domElement.addEventListener("mousemove", (e) => {

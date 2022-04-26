@@ -1,11 +1,11 @@
-import { Mesh } from "three";
+import { Object3D, Vector3 } from "three";
 import { animateProperty } from "./animation/animate";
 import easingsFunctions from "./animation/easingFunctions";
 import createMesh from "./assetHandling/createMesh";
 
 export enum PieceColor { RED, WHITE };
 
-export default class Piece extends Mesh {
+export default class Piece extends Object3D {
 	king = false;
 
 	constructor(public color: PieceColor) {

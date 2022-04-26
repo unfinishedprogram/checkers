@@ -1,9 +1,9 @@
 import { Mesh } from "three";
-import { geometryHandlerInstance, materialHandlerInstance } from "./assetCaches";
+import { geoHandlerInstance, materialHandlerInstance } from "./assetCaches";
 
 export default function createMesh (geoName:string, matName:string) {
 	return new Mesh (
-		geometryHandlerInstance.getAsset(geoName), 
+		geoHandlerInstance.getAsset(geoName), 
 		materialHandlerInstance.getAsset(matName)
 	);
 }
